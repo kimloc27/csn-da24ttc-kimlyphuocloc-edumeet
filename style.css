@@ -1480,3 +1480,26 @@ body {
 #account-login-email {
     font-weight: 700;
 }
+/* Căn giữa nội dung popup xác nhận xóa */
+#delete-confirm-modal .password-modal {
+    text-align: center;
+}
+
+#delete-confirm-modal .password-modal-icon {
+    margin: 0 auto 15px;
+}
+
+#delete-confirm-modal h2 {
+    text-align: center;
+}
+
+#delete-confirm-modal p {
+    text-align: center;
+    margin: 12px 0 20px;
+}
+
+#delete-confirm-modal .profile-required-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}

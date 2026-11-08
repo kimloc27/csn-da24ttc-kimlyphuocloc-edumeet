@@ -27,6 +27,18 @@
     </button>
     
 <div id="profile-dropdown" class="profile-dropdown hidden">
+     <!-- Thông tin tài khoản đăng nhập -->
+   <div class="profile-account-info">
+    <span>
+        Tên giảng viên: <br>
+        <strong id="account-login-name">Giảng viên</strong>
+    </span>
+
+    <span>
+        Email: <strong id="account-login-email">email@gmail.com</strong>
+    </span>
+</div>
+<hr>
 
     <!-- Đổi ảnh đại diện -->
     <label for="avatar-upload" class="profile-dropdown-item">
@@ -174,6 +186,36 @@
                 class="btn btn-primary full">
             Đồng ý
         </button>
+    </div>
+</div>
+<!-- POPUP XÁC NHẬN XÓA LỊCH -->
+<div id="delete-confirm-modal" class="modal-overlay hidden">
+    <div class="password-modal">
+        <button type="button"
+                id="delete-confirm-close"
+                class="modal-close">×</button>
+
+        <div class="password-modal-icon">⚠️</div>
+
+        <h2>Xác nhận xóa lịch</h2>
+
+        <p class="muted">
+            Bạn có chắc chắn muốn xóa khung giờ tư vấn này không?
+        </p>
+
+        <div class="profile-required-actions">
+            <button type="button"
+                    id="delete-confirm-cancel"
+                    class="btn btn-outline">
+                Hủy
+            </button>
+
+            <button type="button"
+                    id="delete-confirm-ok"
+                    class="btn btn-primary">
+                Đồng ý
+            </button>
+        </div>
     </div>
 </div>
 </main>

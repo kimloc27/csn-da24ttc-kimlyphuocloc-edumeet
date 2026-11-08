@@ -957,50 +957,112 @@ function renderLecturerSlots() {
 });
 }
 
+let pendingDeleteSlotId = null;
+
+// Mở popup xác nhận xóa lịch
 function deleteSlot(slotId) {
     const user = getCurrentUser();
-
-    if (!user || user.role !== "lecturer") return;
-
     const slots = getSlots();
+    const bookings = getBookings();
 
-    const slot = slots.find(item =>
-        item.id === slotId &&
-        item.lecturerEmail === user.email
-    );
+    const slot = slots.find(item => String(item.id) === String(slotId));
 
-    if (!slot) {
-        showBookingPopup(
-            "Xóa lịch không thành công!",
-            "Không tìm thấy lịch cần xóa.",
-            "error"
-        );
+    // Kiểm tra lịch có tồn tại và thuộc giảng viên hiện tại không
+    if (!user || !slot || slot.lecturerEmail !== user.email) {
         return;
     }
 
-    if (getBookings().some(booking => booking.slotId === slotId)) {
+    // Không cho xóa lịch đã có sinh viên đăng ký
+    const hasBooking = bookings.some(
+        booking => String(booking.slotId) === String(slotId)
+    );
+
+    if (hasBooking) {
         showBookingPopup(
-            "Xóa lịch không thành công!",
+            "Không thể xóa",
             "Lịch này đã có sinh viên đăng ký nên không thể xóa.",
             "error"
         );
         return;
     }
 
-    if (!confirm("Bạn có chắc muốn xóa lịch này không?")) return;
+    pendingDeleteSlotId = slotId;
 
-    saveData(
-        KEYS.slots,
-        slots.filter(item => item.id !== slotId)
-    );
+    document
+        .getElementById("delete-confirm-modal")
+        ?.classList.remove("hidden");
+}
 
-    showBookingPopup(
-        "Xóa lịch thành công!",
-        "Khung giờ tư vấn đã được xóa.",
-        "success"
-    );
+// Khởi tạo popup xác nhận xóa
+function initDeleteConfirmModal() {
+    const modal = document.getElementById("delete-confirm-modal");
+    const cancelBtn = document.getElementById("delete-confirm-cancel");
+    const closeBtn = document.getElementById("delete-confirm-close");
+    const confirmBtn = document.getElementById("delete-confirm-ok");
 
-    renderLecturerSlots();
+    if (!modal) return;
+
+    function closeModal() {
+        modal.classList.add("hidden");
+        pendingDeleteSlotId = null;
+    }
+
+    cancelBtn?.addEventListener("click", closeModal);
+    closeBtn?.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Xử lý khi nhấn Đồng ý
+    confirmBtn?.addEventListener("click", function () {
+        if (!pendingDeleteSlotId) return;
+
+        const user = getCurrentUser();
+        const slots = getSlots();
+        const bookings = getBookings();
+
+        const slot = slots.find(
+            item => String(item.id) === String(pendingDeleteSlotId)
+        );
+
+        const hasBooking = bookings.some(
+            booking => String(booking.slotId) === String(pendingDeleteSlotId)
+        );
+
+        // Kiểm tra lại trước khi xóa
+        if (!user || !slot ||
+            slot.lecturerEmail !== user.email || hasBooking) {
+
+            closeModal();
+
+            showBookingPopup(
+                "Không thể xóa",
+                "Lịch không hợp lệ hoặc đã có sinh viên đăng ký.",
+                "error"
+            );
+            return;
+        }
+
+        // Xóa lịch
+        const updatedSlots = slots.filter(
+            item => String(item.id) !== String(pendingDeleteSlotId)
+        );
+
+        saveData(KEYS.slots, updatedSlots);
+
+        closeModal();
+
+        showBookingPopup(
+            "Xóa thành công!",
+            "Đã xóa lịch tư vấn thành công.",
+            "success"
+        );
+
+        renderLecturerSlots();
+    });
 }
 // ========================================
 // MENU AVATAR VÀ ĐỔI MẬT KHẨU
@@ -1392,6 +1454,7 @@ initStudentPage();
 initLecturerPage();
 initChangePasswordForm();
 initBookingPopup();
+initDeleteConfirmModal();
 initStudentProfilePage();
 initProfileRequiredModal();
 initConsultationModal();
